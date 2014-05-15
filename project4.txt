@@ -1,0 +1,42 @@
+Project 4 Individual Written Questions 
+
+Name:          Justin Hust
+EID:           jkh2367
+UT CS ID:      jkhust
+Email Address: justin.hust@utexas.edu
+
+SLIP DAYS USED (WRITTEN): 3
+
+1a) When the window size is increased, the ray tracer's running time will definitely increase. 
+Doubling the window size will result in four times as many rays being cast, and thus four
+times the running time.  Adding just one pixel of width to an 800x600 screen will cast 600 more rays.
+
+1b) When all objects are increased in size, the ray tracer will increase in running time slightly, but this
+ is all dependent on how close those objects are to each other, and how small they were to begin with.
+  Two very large spheres next to each other will cause a great deal of ray reflections between each other,z compared to two very small ones. For example, two very large polygons directly  facing each other will generate a great deal of bounces between them.
+
+So, even though the ray tracer calculates shading mathematically, larger surfaces means more reflected rays which means increased running time. 
+
+1c) When more objects are added, there will be increased running time. Once again, this depends on where these objects are in relation to other objects, as well as how many lights are in the scene, etc.
+
+
+2. I believe that transparency and shadows can be handled well enough with the standard OpenGL pipeline, yet reflections can only be handled accurately with ray tracing.
+
+My reasoning is that in order to create truly accurate reflections that are not faked with something like cube-based environment mapping, you need to be able to capture multiple bounces that only ray-tracing can give you.  Typical OpenGL shaders, to my knowledge, are not aware of all objects in the scene in order to do this.
+
+When it comes to shadows, many games and demos now generate them via projection of an object flatly onto a polygon.  Even soft shadows can be done fairly accurately and in real time for many objects.
+
+Likewise, transparency is possible via shaders with not too much of a performance hit. Simply adjust the fragment transparency by a fixed value for the object.
+
+On the other hand, if you want to be able to calculate refractions such as with Snell's law, you may want ray tracing to generate the most accurate refractions possible within the object.
+
+
+3.  These 3D cubes are an octree. If you were creating a raytracer that had hundreds of objects, then you would DEFINITELY want a system like this.
+
+The way it would work, is that you would pre-sort your primitives into these octants based on their bounding regions. Each octant keeps a list of the primitives that either wholly or partially reside in it. Choosing the perfect octant size is important. Too big or too small, and the benefits are lost.
+
+Now, when you fire your rays, you would start with a close ray destination, and then gradually increase your ray's end point BY OCTANT_SIZE, until you end up in an octant in which you hit an object. IF you go too far, like thousands of units, then just assume you didn't get a hit.  Many octants may be empty. So, in a scene that is very spread out, you will likely only check a few primitives in a few octants before you find a hit, assuming that your octant size is small enough.
+
+This could be a tremendous speed boost when dealing with a scene that has dozens or hundreds of randomly distributed objects.
+
+4. The algorithm in raytrace.cpp generates images under a perspective projection. This is because all rays begin from the same eye point of (0,0,0) and fan out through the viewing plane to their destinations. In order to modify the code to perform an orthogonal projection, you would need to cast all rays in parallel through the viewing plane. So, instead of a single eye point, your rays would have to come from the z value of 0.0f, and each be lined up with the x and y pixel of the viewing plane through which you are shooting.  This would ensure parallel rays through each pixel of the viewing plane, and produce an orthogonal image as opposed to a perspective one.
